@@ -1,122 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LinguaLink</title>
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main - LinguaLink+</title>
+<style>
+  body {
+    font-family: Poppins, sans-serif;
+    background: #050507;
+    color: #e8f6ff;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background: linear-gradient(90deg, #00d4ff, #0072ff);
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 {
+    font-size: 20px;
+    margin: 0;
+  }
+  #logout {
+    background: #111;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  #logout:hover {
+    background: #333;
+  }
+  main {
+    padding: 25px;
+    text-align: center;
+  }
+</style>
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="nav-bar">
-    <div class="logo">LinguaLink</div>
-    <div class="nav-links">
-      <a href="#" class="nav-link active" data-target="home-section">🏠 Home</a>
-      <a href="#" class="nav-link" data-target="chat-section">💬 Chat</a>
-      <a href="#" class="nav-link" data-target="friends-section">👥 Friends</a>
-      <a href="#" class="nav-link" data-target="learn-section">📚 Learn</a>
-      <a href="#" class="nav-link" data-target="translate-section">🌐 Translate</a>
-    </div>
-  </nav>
+  <header>
+    <h1>LinguaLink+</h1>
+    <button id="logout">Logout</button>
+  </header>
 
-  <!-- Sections -->
-  <div id="home-section" class="section">
-    <div class="card">
-      <h1>Welcome to LinguaLink!</h1>
-      <p>Connect with people around the world and learn new languages.</p>
-    </div>
+  <main>
+    <h2>Welcome, <span id="username">User</span> 👋</h2>
+    <p>You are now logged in!</p>
+    <p>Start exploring and connect with your language friends.</p>
+  </main>
 
-    <!-- Create Post -->
-    <div class="card">
-      <input type="text" id="new-post-input" placeholder="Share something...">
-      <button id="create-post-btn">Post</button>
-    </div>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-    <!-- Feed container -->
-    <div id="feed-container">
-      <div class="card feed-post">
-        <div class="post-header">
-          <img src="https://via.placeholder.com/40" alt="User1">
-          <span class="username">User1</span>
-          <span class="timestamp">5m ago</span>
-        </div>
-        <p>Just learned “Bonjour” in French! 🌍</p>
-        <div class="post-actions">
-          <button class="like-btn">Like</button>
-          <button class="comment-btn">Comment</button>
-        </div>
-        <div class="comments-container scrollable hidden"></div>
-      </div>
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyD1hOr3ucQr2kRmcxjbt3KL-3r7cQm80oE",
+    authDomain: "lingualink-d1d55.firebaseapp.com",
+    databaseURL: "https://lingualink-d1d55-default-rtdb.firebaseio.com",
+    projectId: "lingualink-d1d55",
+    storageBucket: "lingualink-d1d55.firebasestorage.app",
+    messagingSenderId: "938324626969",
+    appId: "1:938324626969:web:29243bdcac60a2017ba488",
+    measurementId: "G-ZM52VP79GN"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-      <div class="card feed-post">
-        <div class="post-header">
-          <img src="https://via.placeholder.com/40" alt="User2">
-          <span class="username">User2</span>
-          <span class="timestamp">10m ago</span>
-        </div>
-        <p>Anyone wants to practice Spanish today? 🇪🇸</p>
-        <div class="post-actions">
-          <button class="like-btn">Like</button>
-          <button class="comment-btn">Comment</button>
-        </div>
-        <div class="comments-container scrollable hidden"></div>
-      </div>
-    </div>
-  </div>
+  // ========== CHECK IF LOGGED IN ==========
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      // Not logged in → balik sa login/signup
+      window.location.href = "signup.html";
+    } else {
+      // Logged in → show name
+      const doc = await db.collection("users").doc(user.uid).get();
+      document.getElementById("username").textContent = doc.exists ? doc.data().name : "User";
+    }
+  });
 
-  <div id="chat-section" class="section hidden">
-    <div class="card">
-      <h2>Chat Area</h2>
-      <div class="chat-tabs">
-        <button class="chat-tab active" data-target="chat1">Chat 1</button>
-        <button class="chat-tab" data-target="chat2">Chat 2</button>
-      </div>
-      <div id="chat1" class="chat-content scrollable">
-        <p><strong>User1:</strong> Hello! This is Chat 1</p>
-      </div>
-      <div id="chat2" class="chat-content scrollable hidden">
-        <p><strong>User2:</strong> Hello! This is Chat 2</p>
-      </div>
-      <div class="chat-input-area">
-        <input type="text" id="chat-input" placeholder="Type a message...">
-        <button id="send-chat">Send</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="friends-section" class="section hidden">
-    <div class="card">
-      <h2>Friends List</h2>
-      <div class="friend-input-area">
-        <input type="text" id="friend-input" placeholder="Add friend...">
-        <button id="add-friend-btn">Add</button>
-      </div>
-      <ul id="friends-list" class="scrollable"></ul>
-    </div>
-  </div>
-
-  <div id="learn-section" class="section hidden">
-    <div class="card">
-      <h2>Learn Section</h2>
-      <p>Post lessons, tips, or share language resources here.</p>
-    </div>
-  </div>
-
-  <div id="translate-section" class="section hidden">
-    <div class="card">
-      <h2>Translate Section</h2>
-      <p>Use translation tools to communicate globally.</p>
-    </div>
-  </div>
-
-  <!-- Mini Profile Card -->
-  <div id="profile-card" class="hidden">
-    <img id="profile-pic" src="" alt="Profile Picture">
-    <h3 id="profile-username"></h3>
-    <p id="profile-status">Status: Learning languages!</p>
-    <button id="close-profile">Close</button>
-  </div>
-
-  <script src="js/app.js"></script>
+  // ========== LOGOUT ==========
+  document.getElementById("logout").onclick = async () => {
+    await auth.signOut();
+    alert("You’ve been logged out.");
+    window.location.href = "signup.html";
+  };
+  </script>
 </body>
 </html>
