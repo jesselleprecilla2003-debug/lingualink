@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinguaLink Universal Translator</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #000000, #1a1a1a);
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #00bfff;
+      margin-bottom: 20px;
+    }
+
+    textarea, select, button {
+      background: #111;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 8px;
+      width: 320px;
+      font-size: 1em;
+    }
+
+    textarea {
+      height: 100px;
+      resize: none;
+    }
+
+    button {
+      background-color: #00bfff;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #0080cc;
+      transform: scale(1.05);
+    }
+
+    a {
+      color: #00bfff;
+      margin-top: 15px;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .flex {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌐 LinguaLink Translator</h1>
+
+  <textarea id="inputText" placeholder="Enter text..."></textarea>
+
+  <div class="flex">
+    <select id="fromLang"></select>
+    <select id="toLang"></select>
+  </div>
+
+  <div class="flex">
+    <button onclick="speakInput()">🔊 Speak Original</button>
+    <button onclick="translateText()">➡ Translate</button>
+    <button onclick="speakOutput()">🔊 Speak Translation</button>
+  </div>
+
+  <textarea id="outputText" readonly placeholder="Translation result..."></textarea>
+
+  <a href="index.html">⬅ Back to Home</a>
+
+  <script>
+    // 100+ languages for translation
+    const allLanguages = {
+      "af": "Afrikaans","sq": "Albanian","am": "Amharic","ar": "Arabic","hy": "Armenian","az": "Azerbaijani",
+      "eu": "Basque","be": "Belarusian","bn": "Bengali","bs": "Bosnian","bg": "Bulgarian","ca": "Catalan",
+      "ceb": "Cebuano","ny": "Chichewa","zh-CN": "Chinese (Simplified)","zh-TW": "Chinese (Traditional)",
+      "co": "Corsican","hr": "Croatian","cs": "Czech","da": "Danish","nl": "Dutch","en": "English","eo": "Esperanto",
+      "et": "Estonian","tl": "Filipino","fi": "Finnish","fr": "French","fy": "Frisian","gl": "Galician","ka": "Georgian",
+      "de": "German","el": "Greek","gu": "Gujarati","ht": "Haitian Creole","ha": "Hausa","haw": "Hawaiian","he": "Hebrew",
+      "hi": "Hindi","hmn": "Hmong","hu": "Hungarian","is": "Icelandic","ig": "Igbo","id": "Indonesian","ga": "Irish",
+      "it": "Italian","ja": "Japanese","jw": "Javanese","kn": "Kannada","kk": "Kazakh","km": "Khmer","rw": "Kinyarwanda",
+      "ko": "Korean","ku": "Kurdish","ky": "Kyrgyz","lo": "Lao","la": "Latin","lv": "Latvian","lt": "Lithuanian",
+      "lb": "Luxembourgish","mk": "Macedonian","mg": "Malagasy","ms": "Malay","ml": "Malayalam","mt": "Maltese",
+      "mi": "Maori","mr": "Marathi","mn": "Mongolian","my": "Myanmar (Burmese)","ne": "Nepali","no": "Norwegian",
+      "or": "Odia (Oriya)","ps": "Pashto","fa": "Persian","pl": "Polish","pt": "Portuguese","pa": "Punjabi","ro": "Romanian",
+      "ru": "Russian","sm": "Samoan","gd": "Scots Gaelic","sr": "Serbian","st": "Sesotho","sn": "Shona","sd": "Sindhi",
+      "si": "Sinhala","sk": "Slovak","sl": "Slovenian","so": "Somali","es": "Spanish","su": "Sundanese","sw": "Swahili",
+      "sv": "Swedish","tg": "Tajik","ta": "Tamil","tt": "Tatar","te": "Telugu","th": "Thai","tr": "Turkish","tk": "Turkmen",
+      "uk": "Ukrainian","ur": "Urdu","ug": "Uyghur","uz": "Uzbek","vi": "Vietnamese","cy": "Welsh","xh": "Xhosa",
+      "yi": "Yiddish","yo": "Yoruba","zu": "Zulu"
+    };
+
+    const fromLang = document.getElementById("fromLang");
+    const toLang = document.getElementById("toLang");
+
+    for (const [code, name] of Object.entries(allLanguages)) {
+      fromLang.innerHTML += `<option value="${code}">${name}</option>`;
+      toLang.innerHTML += `<option value="${code}">${name}</option>`;
+    }
+
+    fromLang.value = "en";
+    toLang.value = "tl";
+
+    async function translateText() {
+      const text = document.getElementById("inputText").value;
+      const from = fromLang.value;
+      const to = toLang.value;
+      if (!text) return alert("Please enter text!");
+
+      try {
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
+        const data = await response.json();
+        const result = data.responseData.translatedText;
+        document.getElementById("outputText").value = result;
+      } catch (e) {
+        alert("Translation failed. Please try again.");
+      }
+    }
+
+    function speakInput() {
+      const text = document.getElementById("inputText").value;
+      const lang = fromLang.value;
+      if (!text) return alert("No input to speak!");
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = lang;
+      speechSynthesis.speak(utter);
+    }
+
+    function speakOutput() {
+      const text = document.getElementById("outputText").value;
+      const lang = toLang.value;
+      if (!text) return alert("No translation to speak!");
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = lang;
+      speechSynthesis.speak(utter);
+    }
+  </script>
+
+</body>
+</html>

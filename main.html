@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinguaLink</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav-bar">
+    <div class="logo">LinguaLink</div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" data-target="home-section">🏠 Home</a>
+      <a href="#" class="nav-link" data-target="chat-section">💬 Chat</a>
+      <a href="#" class="nav-link" data-target="friends-section">👥 Friends</a>
+      <a href="#" class="nav-link" data-target="learn-section">📚 Learn</a>
+      <a href="#" class="nav-link" data-target="translate-section">🌐 Translate</a>
+    </div>
+  </nav>
+
+  <!-- Sections -->
+  <div id="home-section" class="section">
+    <div class="card">
+      <h1>Welcome to LinguaLink!</h1>
+      <p>Connect with people around the world and learn new languages.</p>
+    </div>
+
+    <!-- Create Post -->
+    <div class="card">
+      <input type="text" id="new-post-input" placeholder="Share something...">
+      <button id="create-post-btn">Post</button>
+    </div>
+
+    <!-- Feed container -->
+    <div id="feed-container">
+      <div class="card feed-post">
+        <div class="post-header">
+          <img src="https://via.placeholder.com/40" alt="User1">
+          <span class="username">User1</span>
+          <span class="timestamp">5m ago</span>
+        </div>
+        <p>Just learned “Bonjour” in French! 🌍</p>
+        <div class="post-actions">
+          <button class="like-btn">Like</button>
+          <button class="comment-btn">Comment</button>
+        </div>
+        <div class="comments-container scrollable hidden"></div>
+      </div>
+
+      <div class="card feed-post">
+        <div class="post-header">
+          <img src="https://via.placeholder.com/40" alt="User2">
+          <span class="username">User2</span>
+          <span class="timestamp">10m ago</span>
+        </div>
+        <p>Anyone wants to practice Spanish today? 🇪🇸</p>
+        <div class="post-actions">
+          <button class="like-btn">Like</button>
+          <button class="comment-btn">Comment</button>
+        </div>
+        <div class="comments-container scrollable hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="chat-section" class="section hidden">
+    <div class="card">
+      <h2>Chat Area</h2>
+      <div class="chat-tabs">
+        <button class="chat-tab active" data-target="chat1">Chat 1</button>
+        <button class="chat-tab" data-target="chat2">Chat 2</button>
+      </div>
+      <div id="chat1" class="chat-content scrollable">
+        <p><strong>User1:</strong> Hello! This is Chat 1</p>
+      </div>
+      <div id="chat2" class="chat-content scrollable hidden">
+        <p><strong>User2:</strong> Hello! This is Chat 2</p>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Type a message...">
+        <button id="send-chat">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="friends-section" class="section hidden">
+    <div class="card">
+      <h2>Friends List</h2>
+      <div class="friend-input-area">
+        <input type="text" id="friend-input" placeholder="Add friend...">
+        <button id="add-friend-btn">Add</button>
+      </div>
+      <ul id="friends-list" class="scrollable"></ul>
+    </div>
+  </div>
+
+  <div id="learn-section" class="section hidden">
+    <div class="card">
+      <h2>Learn Section</h2>
+      <p>Post lessons, tips, or share language resources here.</p>
+    </div>
+  </div>
+
+  <div id="translate-section" class="section hidden">
+    <div class="card">
+      <h2>Translate Section</h2>
+      <p>Use translation tools to communicate globally.</p>
+    </div>
+  </div>
+
+  <!-- Mini Profile Card -->
+  <div id="profile-card" class="hidden">
+    <img id="profile-pic" src="" alt="Profile Picture">
+    <h3 id="profile-username"></h3>
+    <p id="profile-status">Status: Learning languages!</p>
+    <button id="close-profile">Close</button>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LinguaLink+ — Welcome</title>
+  <style>
+    :root{
+      --accent1:#00d4ff;
+      --accent2:#0072ff;
+      --bg:#050507;
+      --card:#0b0b0d;
+      --muted:#9db;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: radial-gradient(circle at 10% 10%, #07080a 0%, #000 45%);
+      color:#eaf6ff;
+      font-family: "Poppins", system-ui, Arial;
+      padding:20px;
+    }
+    .wrap{
+      width:100%;
+      max-width:920px;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:28px;
+      align-items:center;
+    }
+
+    /* left promo */
+    .hero{
+      padding:36px;
+      border-radius:16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: 0 10px 40px rgba(0,180,255,0.06);
+      min-height:360px;
+    }
+    .logo{font-size:2.2rem;color:var(--accent1);font-weight:700;text-shadow:0 0 12px rgba(0,212,255,0.12)}
+    .tag{color:var(--muted);margin-top:10px;max-width:62%}
+    .features{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+    .pill{background:#061018;padding:10px 14px;border-radius:12px;color:#aee; font-weight:600}
+
+    /* right auth card */
+    .card{
+      background:var(--card);
+      padding:22px;
+      border-radius:14px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .card h2{margin:0 0 8px;color:var(--accent2)}
+    input, select, button{
+      width:100%;
+      padding:10px 12px;
+      margin-top:10px;
+      border-radius:10px;
+      border:none;
+      background:#0f1113;
+      color:#fff;
+      outline:none;
+      font-size:0.98rem;
+    }
+    .row{display:flex;gap:10px}
+    .small{width:48%}
+    button.primary{
+      background: linear-gradient(90deg,var(--accent1),var(--accent2));
+      color:#001;
+      font-weight:700;
+      border-radius:10px;
+      cursor:pointer;
+      margin-top:14px;
+      padding:12px;
+    }
+    button.ghost{
+      background:transparent;color:var(--accent1);border:1px solid rgba(0,212,255,0.12);cursor:pointer;margin-top:8px;
+    }
+    .note{font-size:0.86rem;color:var(--muted);margin-top:12px}
+    .err{color:#ff9b9b;margin-top:8px;font-size:0.92rem}
+    footer{margin-top:14px;font-size:0.82rem;color:#7eaedb}
+    @media(max-width:880px){
+      .wrap{grid-template-columns:1fr; padding:10px}
+      .hero{order:2}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="logo">🌐 LinguaLink+</div>
+      <div class="tag">Connect with real people. Learn languages through conversation, practice pronunciation, and find language partners worldwide.</div>
+
+      <div class="features" style="margin-top:22px;">
+        <div class="pill">Add / Accept friends</div>
+        <div class="pill">Private chats (per friend)</div>
+        <div class="pill">Translator + TTS</div>
+        <div class="pill">Continuous Learn Mode</div>
+      </div>
+
+      <div style="margin-top:24px;color:var(--muted);max-width:70%;">
+        Tip: Sign up with email, set the language you speak and the language you want to learn — then search & add partners on the Partners page.
+      </div>
+    </div>
+
+    <div class="card" id="authCard">
+      <h2>Sign up / Login</h2>
+
+      <input id="email" type="email" placeholder="Email" autocomplete="username"/>
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+
+      <input id="displayName" placeholder="Full name (display)" />
+      <div class="row">
+        <select id="speak" class="small"><option value="">Language you speak</option></select>
+        <select id="learn" class="small"><option value="">Language you want to learn</option></select>
+      </div>
+
+      <button class="primary" id="btnRegister">Create account</button>
+      <button class="ghost" id="btnLogin">Login</button>
+
+      <div class="note">By signing up you agree to test-use only. This is a student project demo for learning.</div>
+      <div class="err" id="err"></div>
+      <footer>Already have an account? Use Login → then go to <strong>Find Partners</strong>.</footer>
+    </div>
+  </div>
+
+  <!-- Firebase compat libs (easier integration across pages) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ---------- PASTE YOUR FIREBASE CONFIG HERE ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1hOr3ucQr2kRmcxjbt3KL-3r7cQm80oE",
+      authDomain: "lingualink-d1d55.firebaseapp.com",
+      databaseURL: "https://lingualink-d1d55-default-rtdb.firebaseio.com",
+      projectId: "lingualink-d1d55",
+      storageBucket: "lingualink-d1d55.firebasestorage.app",
+      messagingSenderId: "938324626969",
+      appId: "1:938324626969:web:29243bdcac60a2017ba488",
+      measurementId: "G-ZM52VP79GN"
+    };
+    // ----------------------------------------------------
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // full language subset (you can expand further)
+    const LANGS = {
+      "en":"English","tl":"Tagalog","es":"Spanish","fr":"French","ja":"Japanese","ko":"Korean",
+      "zh-CN":"Chinese (Simplified)","zh-TW":"Chinese (Traditional)","ar":"Arabic","de":"German",
+      "pt":"Portuguese","ru":"Russian","it":"Italian","hi":"Hindi","sv":"Swedish","vi":"Vietnamese",
+      "id":"Indonesian","ms":"Malay","tr":"Turkish","nl":"Dutch"
+    };
+
+    const speak = document.getElementById('speak');
+    const learn = document.getElementById('learn');
+    for(const [c,n] of Object.entries(LANGS)){
+      speak.innerHTML += `<option value="${c}">${n}</option>`;
+      learn.innerHTML += `<option value="${c}">${n}</option>`;
+    }
+
+    const btnRegister = document.getElementById('btnRegister');
+    const btnLogin = document.getElementById('btnLogin');
+    const errDiv = document.getElementById('err');
+
+    btnRegister.addEventListener('click', async () => {
+      errDiv.textContent = '';
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const name = document.getElementById('displayName').value.trim();
+      const sp = document.getElementById('speak').value;
+      const le = document.getElementById('learn').value;
+      if(!email||!password||!name||!sp||!le){ errDiv.textContent = 'Fill all fields.'; return; }
+      try {
+        const uc = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection('users').doc(uc.user.uid).set({
+          name, email, speak: sp, learn: le, friends: [], created: Date.now()
+        });
+        // after sign-up redirect to partners page
+        window.location.href = 'friends.html';
+      } catch (e) {
+        errDiv.textContent = e.message;
+      }
+    });
+
+    btnLogin.addEventListener('click', async () => {
+      errDiv.textContent = '';
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      if(!email||!password){ errDiv.textContent = 'Enter email and password.'; return; }
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        window.location.href = 'friends.html';
+      } catch (e) {
+        errDiv.textContent = e.message;
+      }
+    });
+
+    // quick redirect if already logged in
+    auth.onAuthStateChanged(u => {
+      if(u) {
+        // already logged in — go to partners
+        // small delay so user sees that they're logged in
+        setTimeout(()=> window.location.href = 'friends.html', 600);
+      }
+    });
+  </script>
+</body>
+</html>

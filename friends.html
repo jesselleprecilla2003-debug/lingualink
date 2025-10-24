@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Find Partners - LinguaLink</title>
+<style>
+  body{font-family:Poppins;background:#060608;color:#eef;min-height:100vh;padding:20px}
+  .wrap{max-width:980px;margin:auto}
+  .top{display:flex;gap:12px;align-items:center;justify-content:space-between}
+  input,select{padding:10px;border-radius:8px;border:1px solid #222;background:#0d0d0f;color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:16px}
+  .card{background:#0b0b0d;padding:12px;border-radius:10px}
+  button{background:linear-gradient(90deg,#00d4ff,#0072ff);border:none;padding:8px 12px;border-radius:8px;color:#001;cursor:pointer}
+  a{color:#66d2ff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h2>Find language partners</h2>
+    <div>
+      <span id="meLabel"></span>
+      <a href="index.html">Home</a>
+      <a href="chat.html" style="margin-left:12px">Open Chat</a>
+    </div>
+  </div>
+
+  <div style="margin-top:12px">
+    <select id="filterLang"><option value="">Filter by speaks (any)</option></select>
+    <button id="refreshBtn">Search</button>
+  </div>
+
+  <div class="grid" id="results"></div>
+</div>
+
+<!-- firebase compat libs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = { apiKey:"FIREBASE_APIKEY_HERE", authDomain:"FIREBASE_AUTHDOMAIN", projectId:"FIREBASE_PROJECTID", storageBucket:"FIREBASE_STORAGEBUCKET", messagingSenderId:"FIREBASE_MSGID", appId:"FIREBASE_APPID" };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth(), db = firebase.firestore();
+const LANGS = {"en":"English","tl":"Tagalog","es":"Spanish","fr":"French","ja":"Japanese","ko":"Korean","zh":"Chinese","ar":"Arabic","de":"German","pt":"Portuguese"};
+const filter = document.getElementById('filterLang');
+for(const [c,n] of Object.entries(LANGS)) filter.innerHTML += `<option value="${c}">${n}</option>`;
+
+let me = null;
+auth.onAuthStateChanged(async user=>{
+  if(!user) return window.location.href='signup.html';
+  const doc = await db.collection('users').doc(user.uid).get();
+  me = { id:user.uid, ...doc.data() };
+  document.getElementById('meLabel').innerText = `Signed in: ${me.name}`;
+  loadUsers();
+});
+
+async function loadUsers(){
+  const f = filter.value;
+  let q = db.collection('users');
+  if(f) q = q.where('speak','==',f);
+  const snap = await q.get();
+  const results = document.getElementById('results'); results.innerHTML='';
+  snap.forEach(d=>{
+    const u = { id:d.id, ...d.data() };
+    if(u.id === me.id) return;
+    const isFriend = (me.friends||[]).includes(u.id);
+    results.innerHTML += `
+      <div class="card">
+        <div><strong>${u.name}</strong></div>
+        <div style="font-size:13px;color:#9db">${LANGS[u.speak]||u.speak} → learning ${LANGS[u.learn]||u.learn}</div>
+        <div style="margin-top:8px">
+          ${isFriend ? `<button onclick="openChat('${u.id}')">Open Chat</button>` : `<button onclick="sendRequest('${u.id}')">Add</button>`}
+        </div>
+      </div>`;
+  });
+}
+
+async function sendRequest(targetId){
+  // create friend request doc
+  await db.collection('friendRequests').add({from:me.id,to:targetId,created:Date.now(),status:'pending'});
+  alert('Friend request sent.');
+}
+
+function openChat(targetId){
+  // open chat with deterministic room ID user1_user2 sorted
+  const ids = [me.id, targetId].sort();
+  const room = ids.join('_');
+  // store active room in localStorage and go to chat page
+  localStorage.setItem('roomId', room);
+  localStorage.setItem('partnerId', targetId);
+  window.location.href = 'chat.html';
+}
+
+document.getElementById('refreshBtn').onclick = loadUsers;
+</script>
+</body>
+</html>

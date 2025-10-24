@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Signup - LinguaLink+</title>
+<link rel="stylesheet" href="">
+<style>
+  body{font-family:Poppins,system-ui;background:#050507;color:#e8f6ff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+  .box{background:#0b0b0d;padding:28px;border-radius:12px;width:92%;max-width:420px;box-shadow:0 10px 30px rgba(0,180,255,0.06)}
+  input,select{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #222;background:#0f1113;color:#fff}
+  button{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(90deg,#00d4ff,#0072ff);color:#001;font-weight:700}
+  a{color:#66caff}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h2>LinguaLink+ — Sign up / Login</h2>
+
+    <input id="email" placeholder="Email" type="email" />
+    <input id="password" placeholder="Password" type="password" />
+    <input id="name" placeholder="Full name (display)" />
+    <select id="speak"><option value="">Language you speak</option></select>
+    <select id="learn"><option value="">Language you want to learn</option></select>
+
+    <button id="btnRegister">Create account</button>
+    <button id="btnLogin" style="margin-top:8px;background:#111;color:#fff">Login</button>
+    <p style="font-size:13px;margin-top:12px">After login you'll be redirected to the partner page.</p>
+    <p><a href="index.html">← Back home</a></p>
+  </div>
+
+  <!-- Firebase compat libs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+  // ========== PASTE YOUR FIREBASE CONFIG HERE ==========
+  const firebaseConfig = {
+    apiKey: "FIREBASE_APIKEY_HERE",
+    authDomain: "FIREBASE_AUTHDOMAIN",
+    projectId: "FIREBASE_PROJECTID",
+    storageBucket: "FIREBASE_STORAGEBUCKET",
+    messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+    appId: "FIREBASE_APPID"
+  };
+  // ====================================================
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // small language list (you can expand or import full list)
+  const LANGS = {"en":"English","tl":"Tagalog","es":"Spanish","fr":"French","ja":"Japanese","ko":"Korean","zh":"Chinese","ar":"Arabic","de":"German","pt":"Portuguese"};
+  const speak = document.getElementById('speak');
+  const learn = document.getElementById('learn');
+  for(const [c,n] of Object.entries(LANGS)){ speak.innerHTML += `<option value="${c}">${n}</option>`; learn.innerHTML += `<option value="${c}">${n}</option>`;}
+
+  document.getElementById('btnRegister').onclick = async () => {
+    const email=document.getElementById('email').value.trim();
+    const pass=document.getElementById('password').value;
+    const name=document.getElementById('name').value.trim();
+    const sp=document.getElementById('speak').value;
+    const le=document.getElementById('learn').value;
+    if(!email||!pass||!name||!sp||!le){ alert('Fill all fields'); return;}
+    try{
+      const uc = await auth.createUserWithEmailAndPassword(email,pass);
+      await db.collection('users').doc(uc.user.uid).set({name,email,speak:sp,learn:le,friends:[],created:Date.now()});
+      alert('Account created');
+      window.location.href='friends.html';
+    }catch(e){ alert(e.message); }
+  };
+
+  document.getElementById('btnLogin').onclick = async () => {
+    const email=document.getElementById('email').value.trim();
+    const pass=document.getElementById('password').value;
+    if(!email||!pass){ alert('Provide email & password'); return;}
+    try{
+      await auth.signInWithEmailAndPassword(email,pass);
+      window.location.href='friends.html';
+    }catch(e){ alert(e.message); }
+  };
+
+  // Keep user signed in across pages
+  auth.onAuthStateChanged(u => {
+    if(u){ /* user logged */ }
+  });
+  </script>
+</body>
+</html>

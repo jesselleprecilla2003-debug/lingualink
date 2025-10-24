@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinguaLink+ Learn</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top, #000, #111 80%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 15px;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      padding: 25px 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 400px;
+    }
+    .word {
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+    .lang {
+      font-size: 1em;
+      color: #00c6ff;
+      margin-bottom: 15px;
+    }
+    button {
+      background: linear-gradient(90deg, #0072ff, #00c6ff);
+      border: none;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1em;
+      margin: 5px;
+      transition: 0.2s;
+    }
+    button:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌐 Learn Something New</h1>
+  <div class="card">
+    <div class="word" id="word">Loading...</div>
+    <div class="lang" id="language"></div>
+    <button onclick="playWord()">🔊 Hear</button>
+    <button onclick="nextWord()">➡ Next</button>
+  </div>
+
+  <script>
+    const words = [
+      { lang: "English", text: "Hello" },
+      { lang: "Filipino", text: "Kamusta" },
+      { lang: "Spanish", text: "Gracias" },
+      { lang: "French", text: "Bonjour" },
+      { lang: "Japanese", text: "こんにちは (Konnichiwa)" },
+      { lang: "Korean", text: "안녕하세요 (Annyeonghaseyo)" },
+      { lang: "Italian", text: "Ciao" },
+      { lang: "German", text: "Danke" },
+      { lang: "Russian", text: "Привет (Privet)" },
+      { lang: "Arabic", text: "مرحبا (Marhaba)" },
+      { lang: "Hindi", text: "नमस्ते (Namaste)" },
+      { lang: "Thai", text: "สวัสดี (Sawasdee)" },
+      { lang: "Portuguese", text: "Obrigado" },
+      { lang: "Turkish", text: "Merhaba" },
+      { lang: "Greek", text: "Γειά σου (Yia sou)" },
+      { lang: "Vietnamese", text: "Xin chào" },
+      { lang: "Swedish", text: "Hej" },
+      { lang: "Dutch", text: "Hallo" },
+      { lang: "Chinese", text: "你好 (Nǐ hǎo)" },
+      { lang: "Polish", text: "Cześć" },
+      { lang: "Indonesian", text: "Terima kasih" },
+      { lang: "Malay", text: "Selamat pagi" },
+      { lang: "Hebrew", text: "שלום (Shalom)" },
+      { lang: "Finnish", text: "Moi" },
+      { lang: "Romanian", text: "Salut" },
+      { lang: "Czech", text: "Ahoj" },
+      { lang: "Danish", text: "Hej" },
+      { lang: "Norwegian", text: "Hallo" },
+      { lang: "Swahili", text: "Asante" },
+      { lang: "Bengali", text: "হ্যালো (Hyālō)" }
+    ];
+
+    let usedIndexes = [];
+
+    function nextWord() {
+      if (usedIndexes.length === words.length) {
+        usedIndexes = []; // reset when all used
+      }
+
+      let index;
+      do {
+        index = Math.floor(Math.random() * words.length);
+      } while (usedIndexes.includes(index));
+
+      usedIndexes.push(index);
+
+      const { lang, text } = words[index];
+      document.getElementById("word").textContent = text;
+      document.getElementById("language").textContent = lang;
+
+      playVoice(lang, text);
+    }
+
+    function playWord() {
+      const text = document.getElementById("word").textContent;
+      const lang = document.getElementById("language").textContent;
+      playVoice(lang, text);
+    }
+
+    function playVoice(lang, text) {
+      const synth = window.speechSynthesis;
+      const voices = synth.getVoices();
+      let voice = voices.find(v => v.lang.toLowerCase().includes(lang.toLowerCase()));
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = lang;
+
+      if (!voice) voice = voices.find(v => v.lang.startsWith("en"));
+      if (voice) utter.voice = voice;
+
+      synth.speak(utter);
+    }
+
+    window.speechSynthesis.onvoiceschanged = () => nextWord();
+    setInterval(nextWord, 8000); // auto change every 8 seconds
+  </script>
+</body>
+</html>
